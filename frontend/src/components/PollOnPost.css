@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700&display=swap');
+.poll-container {
+  width: 400px;
+  font-family: 'Gothic A1';
+}
+
+.poll-row {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.poll-bar-bg {
+  background-color: #fef6e7;
+  height: 40px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.poll-bar-fill {
+  background-color: #ffdd4a;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.5s ease;
+  z-index: 1;
+}
+
+.poll-option {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: regular;
+  color: #000000;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.poll-percent {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: regular;
+  color: #000000;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.poll-row.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.poll-row.clickable:hover .poll-bar-bg {
+  background-color: #f2ebd9;
+}

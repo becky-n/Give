@@ -4,50 +4,39 @@ import PollOnPost from './components/PollOnPost';
 import React, { useEffect, useState } from 'react';
 
 function App() {
- const [options, setOptions] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate fetching data from backend (replace this with actual API call later)
-    const fetchData = async () => {
-      // Simulated API delay
-      const response = await new Promise((resolve) =>
-        setTimeout(() => resolve([
-          { label: 'Option 1' },
-          { label: 'Option 2' },
-          { label: 'Option 3' },
-          { label: 'Option 4' },
-        ]), 500)
-      );
-      setOptions(response);
-    };
+  useEffect(() => {
+    const getPoll = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/polls/1'); // <-- json-server
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const poll = await res.json();  // { id, question, options: [{label}, ...] }
+        setOptions(poll?.options ?? []);
+      } catch (err) {
+        console.error('Failed to load poll:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getPoll();
+  }, []);
 
-    fetchData();
-  }, []);
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <div className="PollBox">
-      {options.length > 0 ? (
-        <PollOnPost initialOptions={options} />
-      ) : (
-        <p>Loading poll...</p>
-      )}
-    </div>
-      </header>
-    </div>
-  );
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <div className="PollBox">
+          {loading ? (
+            <p>Loading poll...</p>
+          ) : (
+            <PollOnPost initialOptions={options} />
+          )}
+        </div>
+      </header>
+    </div>
+  );
 }
 
 export default App;

@@ -1,0 +1,12 @@
+{
+  "polls": [
+    {
+      "id": 1,
+      "options": [
+        { "label": "Red Nails" },
+        { "label": "Blue Nails" },
+        { "label": "Pink Nails" }
+      ]
+    }
+  ]
+}
