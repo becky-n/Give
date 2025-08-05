@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     const getPoll = async () => {
       try {
-        const res = await fetch('http://localhost:5001/polls/1'); // <-- json-server
+        const res = await fetch('http://localhost:5001/polls/1');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const poll = await res.json();  // { id, question, options: [{label}, ...] }
         setOptions(poll?.options ?? []);
