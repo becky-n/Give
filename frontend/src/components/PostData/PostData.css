@@ -1,0 +1,42 @@
+.post-data-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: left;
+  padding: 1rem 0;
+}
+
+.post-question {
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.post-slide {
+  > img {
+    height: 7rem;
+    padding: 0 0.5rem;
+    border-radius: 10%;
+  }
+}
+
+.my-slick-dots {
+  display: flex !important;
+  justify-content: center;
+}
+
+.my-slick-dots li button {
+  font-size: 0; /* Hide the default number if present */
+  width: 6px;
+  height: 6px;
+  background-color: #F5CCE2; /* Default dot color */
+  opacity: 0.4; /* Active dot color */
+  border-radius: 50%; /* Make them circular */
+  border: none;
+  margin: 0 5px; /* Spacing between dots */
+  cursor: pointer; /* Remove default focus outline */
+}
+
+.my-slick-dots li.slick-active button {
+  opacity: 1; /* Active dot color */
+}

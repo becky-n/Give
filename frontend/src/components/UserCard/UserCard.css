@@ -1,0 +1,54 @@
+.user-card {
+/* background grey */
+  display: grid;
+  grid-template-columns: min-content auto min-content;
+  width: 100%;
+
+}
+
+.avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-image: url('./noPfp.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #D9D9D9;
+    padding: 0.5rem;
+  }
+
+  .withBackground {
+    background-color: #fff;;
+  }
+}
+
+.user-info {
+  text-align: left;
+  padding: 0 1rem;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1rem;
+  text-transform: lowercase;
+}
+
+.group {
+  font-size: 0.75rem;
+  line-height: 2rem;
+}
+
+.group-name {
+  font-weight: 600;
+}
+
+.time {
+  white-space: nowrap;
+  font-size: 0.75rem;
+}

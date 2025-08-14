@@ -1,0 +1,11 @@
+.root {
+  width: 28rem;             
+  border-radius: 1.5rem;
+  padding: 1rem;
+  background-color: #F5F3F3;
+  margin: auto;             
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
