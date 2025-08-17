@@ -23,6 +23,8 @@ const Login = () => {
 
       setSuccess(result.message || "Logged in successfully");
 
+       localStorage.setItem("user", JSON.stringify(result.user));
+
       // navigate to home here
       // eg setTimeout(() => { navigate("/home");}, 2000);
 
