@@ -1,38 +1,41 @@
 const { db } = require('../firebase/firebase');
-import {
-  collection, addDoc, serverTimestamp, query, where, orderBy, limit, getDocs
-} from 'firebase/firestore';
 
-export async function createPost({ currentUser, content, mediaUrls = [], tags = [] }) {
-  if (!currentUser) throw new Error('Must be signed in');
+exports.createPost = async (req, res) => {
+  try {
+    const { content, mediaUrls = [], tags = [], authorId, authorDisplayName, authorPhotoURL } = req.body;
+    if (!content || !content.trim()) return res.status(400).json({ error: 'Content is required' });
 
-  const post = {
-    authorId: currentUser.uid,
-    authorDisplayName: currentUser.displayName ?? null,
-    authorPhotoURL: currentUser.photoURL ?? null,
-    content,
-    mediaUrls,
-    tags,
-    polls: [],
-    // visibility: 'public',
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    // stats: { likeCount: 0, commentCount: 0, viewCount: 0 },
-  };
+    const post = {
+      authorId,
+      authorDisplayName,
+      authorPhotoURL,
+      content: content.trim(),
+      mediaUrls,
+      tags,
+      polls: [],
+      createdAt: db.firestore.FieldValue.serverTimestamp(),
+      updatedAt: db.firestore.FieldValue.serverTimestamp(),
+    };
 
-  return await addDoc(collection(db, 'posts'), post);
-}
+    const ref = await db.collection('posts').add(post);
+    const snap = await ref.get();
+    res.status(201).json({ id: ref.id, ...snap.data() });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to create post' });
+  }
+};
 
-
-export async function getPosts({ limitCount = 10, orderByField = 'createdAt', orderDirection = 'desc' } = {}) {
-  const postsRef = collection(db, 'posts');
-  const q = query(
-    postsRef,
-    orderBy(orderByField, orderDirection),
-    limit(limitCount)
-  );
-
-  const querySnapshot = await getDocs(q);
-  const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  return posts;
-}
+exports.getPosts = async (req, res) => {
+  try {
+    const limitCount = Number(req.query.limitCount ?? 10);
+    const snap = await db.collection('posts')
+      .orderBy('createdAt', 'desc')
+      .limit(limitCount)
+      .get();
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to fetch posts' });
+  }
+};
