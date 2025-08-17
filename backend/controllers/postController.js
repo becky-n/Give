@@ -1,4 +1,4 @@
-const { db } = require('../firebase/firebase');
+const { db, admin } = require('../firebase/firebase');
 
 exports.createPost = async (req, res) => {
   try {
@@ -13,8 +13,8 @@ exports.createPost = async (req, res) => {
       mediaUrls,
       tags,
       polls: [],
-      createdAt: db.firestore.FieldValue.serverTimestamp(),
-      updatedAt: db.firestore.FieldValue.serverTimestamp(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     const ref = await db.collection('posts').add(post);

@@ -1,11 +1,10 @@
-import React,{ useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import Login from './pages/Login';
-import Post from './components/Post';
-import './styles/App.css';
-import ResponsiveContainer from './components/postContainer';
-import GroupTab from './components/GroupTab';
-
+import Login from "./pages/Login";
+import Post from "./components/Post";
+import "./styles/App.css";
+import ResponsiveContainer from "./components/postContainer";
+import GroupTab from "./components/GroupTab";
 
 // async function getPostData () {
 //       try {
@@ -21,6 +20,10 @@ import GroupTab from './components/GroupTab';
 // npm install react-router-dom
 
 function App() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    console.log("User is logged in:", user);
+  }
   // const [postData, setPostData] = useState(null);
   // const [loading, setLoading] = useState(true);
 
@@ -35,7 +38,7 @@ function App() {
   //   });
   // }, []);
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
 
   // return (
   //   <div className="App flex">
@@ -52,8 +55,6 @@ function App() {
   //   </div>
   // );
 
-
-
   return (
     <div className="App">
       <header className="App-header">
@@ -61,25 +62,22 @@ function App() {
           <Route path="/login" element={<Login />} />
         </Routes>
       </header>
-      {/* <ResponsiveContainer currentUser={user} /> */}
+      <ResponsiveContainer currentUser={user} />
 
       <div className="App flex">
-      {/* left column */}
-      <GroupTab />
-      <div>
-
-      {/* middle column */}
-        {/* <Post
+        {/* left column */}
+        <GroupTab />
+        <div>
+          {/* middle column */}
+          {/* <Post
           user={postData.user}
           group={postData.group}
           post={postData.post}
           pollOptions={postData.pollOptions}
         /> */}
-
+        </div>
       </div>
     </div>
-    </div>
   );
-
 }
 export default App;
