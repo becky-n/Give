@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../styles/index.css";
+import imageIcon from "../assets/imageIcon.svg";
 
 // Create a post via backend
 export async function createPostViaApi({
@@ -50,6 +51,45 @@ export default function ResponsiveContainer({ currentUser }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const fileInputRef = useRef(null);
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
+  }
+
+  function onPickFiles(e) {
+    const picked = Array.from(e.target.files || []);
+    setFiles((prev) => [...prev, ...picked]);
+
+    // make object URLs for preview
+    const newPreviews = picked.map((f) => URL.createObjectURL(f));
+    setPreviews((prev) => [...prev, ...newPreviews]);
+  }
+
+  function removePreview(idx) {
+    // revoke object URL and remove
+    URL.revokeObjectURL(previews[idx]);
+    setPreviews((prev) => prev.filter((_, i) => i !== idx));
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  /** Upload files to the backend, return array of URLs */
+  async function uploadFilesGetUrls(files) {
+    if (!files.length) return [];
+    const form = new FormData();
+    files.forEach((f) => form.append("files", f));
+    const res = await fetch("/api/upload", { method: "POST", body: form });
+    if (!res.ok) throw new Error((await res.json()).error || "Upload failed");
+    const data = await res.json();
+    return Array.isArray(data.urls) ? data.urls : [];
+  }
+
+  useEffect(() => {
+    return () => previews.forEach(URL.revokeObjectURL);
+  }, [previews]);
+
   async function refreshPosts() {
     try {
       setLoading(true);
@@ -78,13 +118,21 @@ export default function ResponsiveContainer({ currentUser }) {
 
     try {
       setSubmitting(true);
+
+      const uploadedUrls = await uploadFilesGetUrls(files);
+
       await createPostViaApi({
         currentUser,
         content: text.trim(),
+        mediaUrls: uploadedUrls,
         tags: tags.split(",").map((tag) => tag.trim()),
       });
       setText("");
       setTags("");
+      setFiles([]);
+      previews.forEach(URL.revokeObjectURL);
+      setPreviews([]);
+
       await refreshPosts();
     } catch (err) {
       setError(err.message || "Failed to create post");
@@ -165,7 +213,57 @@ export default function ResponsiveContainer({ currentUser }) {
             <h3 className="text-lg font-semibold mb-2 text-black text-left ">
               Add to Your Post
             </h3>
-            <div className="mb-6 w-full h-32 bg-backgroundGrey px-4 py-8 rounded-lg "></div>
+
+            <div className="relative mb-6 w-full min-h-56 bg-backgroundGrey px-4 py-8 rounded-lg">
+              {/* Previews grid */}
+              {previews.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 pr-14">
+                  {previews.map((src, idx) => (
+                    <div
+                      key={src}
+                      className="relative group rounded-md overflow-hidden border border-gray-200"
+                    >
+                      <img
+                        src={src}
+                        alt={`preview-${idx}`}
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePreview(idx)}
+                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition
+                       bg-white/90 text-gray-700 rounded px-1 text-xs border"
+                        aria-label="Remove image"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={onPickFiles}
+              />
+
+              {/* Add-image button (bottom-right) */}
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="absolute bottom-2 right-2 flex items-center justify-center 
+               rounded-md shadow-sm p-3  hover:bg-gray-50"
+                aria-label="Add images"
+                title="Add images"
+              >
+                <img src={imageIcon} alt="" className="h-6 w-6" />
+              </button>
+            </div>
 
             <h3 className="text-lg font-semibold mb-2 text-black text-left ">
               Create Polls
