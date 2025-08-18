@@ -9,7 +9,8 @@ const Post = ({user, group, post, pollOptions}) => {
   return (
     <div className='root'>
       <UserCard user={user} group={group} timeLeft={post.timeLeft} />
-      <PostData post={post} />
+      {/* <PostData post={post} /> */}
+      <p>{post.content}</p>
       <PollBox initialOptions={pollOptions} />
     </div>
   )

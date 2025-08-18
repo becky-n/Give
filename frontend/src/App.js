@@ -17,6 +17,21 @@ import GroupTab from "./components/GroupTab";
 //       }
 //     };
 
+export async function getPostData({
+  limitCount = 10,
+  orderByField = "createdAt",
+  orderDirection = "desc",
+} = {}) {
+  const params = new URLSearchParams({
+    limitCount,
+    orderByField,
+    orderDirection,
+  });
+  const res = await fetch(`/api/posts?${params.toString()}`);
+  if (!res.ok) throw new Error((await res.json()).error || "Failed to fetch");
+  return res.json();
+}
+
 // npm install react-router-dom
 
 function App() {
@@ -24,19 +39,13 @@ function App() {
   if (user) {
     console.log("User is logged in:", user);
   }
-  // const [postData, setPostData] = useState(null);
-  // const [loading, setLoading] = useState(true);
+  const [postData, setPostData] = useState(null);
 
-  // useEffect(() => {
-  //   getPostData().then((data) => {
-  //     setPostData(data);
-  // }).catch((error) => {
-  //     console.error("Error fetching post data:", error);
-  //   }).finally(() => {
-  //     console.log("Post data fetch completed");
-  //     setLoading(false);
-  //   });
-  // }, []);
+  useEffect(() => {
+    getPostData()
+      .then((data) => setPostData(data))
+      .catch((error) => console.error("Error fetching post data:", error));
+  }, []);
 
   // if (loading) return <p>Loading...</p>;
 
@@ -75,6 +84,20 @@ function App() {
           post={postData.post}
           pollOptions={postData.pollOptions}
         /> */}
+          {postData &&
+            postData.map((p) => (
+              <Post
+                key={p.id}
+                user={{
+                  name: p.authorDisplayName,
+                  profilePic: p.authorPhotoURL,
+                  id: p.authorId,
+                }}
+                group={p.group ?? null}
+                post={p}
+                pollOptions={p.polls ?? []}
+              />
+            ))}
         </div>
       </div>
     </div>

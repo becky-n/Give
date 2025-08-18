@@ -148,7 +148,7 @@ export default function ResponsiveContainer({ currentUser }) {
           Create a post
         </h2>
 
-        <div className="ml-10">
+        <div className="ml-10 mr-10">
           <div className="flex items-center space-x-2 mb-4">
             <h3 className="text-lg font-semibold text-black">Add to:</h3>
             <button
