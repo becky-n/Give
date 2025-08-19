@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/index.css";
 import imageIcon from "../assets/imageIcon.svg";
+import { uploadManyAndGetUrls } from "../lib/storageUpload";
 
 // Create a post via backend
 export async function createPostViaApi({
@@ -43,6 +44,7 @@ export async function getPostsViaApi({
   return res.json();
 }
 
+
 export default function ResponsiveContainer({ currentUser }) {
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
@@ -62,28 +64,14 @@ export default function ResponsiveContainer({ currentUser }) {
   function onPickFiles(e) {
     const picked = Array.from(e.target.files || []);
     setFiles((prev) => [...prev, ...picked]);
-
-    // make object URLs for preview
     const newPreviews = picked.map((f) => URL.createObjectURL(f));
     setPreviews((prev) => [...prev, ...newPreviews]);
   }
 
   function removePreview(idx) {
-    // revoke object URL and remove
     URL.revokeObjectURL(previews[idx]);
     setPreviews((prev) => prev.filter((_, i) => i !== idx));
     setFiles((prev) => prev.filter((_, i) => i !== idx));
-  }
-
-  /** Upload files to the backend, return array of URLs */
-  async function uploadFilesGetUrls(files) {
-    if (!files.length) return [];
-    const form = new FormData();
-    files.forEach((f) => form.append("files", f));
-    const res = await fetch("/api/upload", { method: "POST", body: form });
-    if (!res.ok) throw new Error((await res.json()).error || "Upload failed");
-    const data = await res.json();
-    return Array.isArray(data.urls) ? data.urls : [];
   }
 
   useEffect(() => {
@@ -119,14 +107,19 @@ export default function ResponsiveContainer({ currentUser }) {
     try {
       setSubmitting(true);
 
-      const uploadedUrls = await uploadFilesGetUrls(files);
+      // ⬇️ Upload directly to Firebase Storage (no /api/upload)
+      const { urls } = await uploadManyAndGetUrls(files, currentUser.uid);
 
       await createPostViaApi({
         currentUser,
         content: text.trim(),
-        mediaUrls: uploadedUrls,
-        tags: tags.split(",").map((tag) => tag.trim()),
+        mediaUrls: urls,
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
       });
+
       setText("");
       setTags("");
       setFiles([]);
@@ -277,7 +270,7 @@ export default function ResponsiveContainer({ currentUser }) {
               </button>
             </div>
 
-            {/* {error && <p className="text-red-600 mt-4">{error}</p>} */}
+            {error && <p className="text-red-600 mt-4">{error}</p>}
 
             <div className="mt-4">
               <button

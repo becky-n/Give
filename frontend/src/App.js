@@ -35,10 +35,14 @@ export async function getPostData({
 // npm install react-router-dom
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user) {
-    console.log("User is logged in:", user);
-  }
+const [user, setUser] =useState(null);
+
+ useEffect(() => {
+    const saved = localStorage.getItem("user");
+    if (saved) setUser(JSON.parse(saved));
+  }, []);
+
+
   const [postData, setPostData] = useState(null);
 
   useEffect(() => {
@@ -68,7 +72,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <Routes>
-          <Route path="/login" element={<Login />} />
+           <Route path="/login" element={<Login onLogin={setUser} />} />
         </Routes>
       </header>
       <ResponsiveContainer currentUser={user} />

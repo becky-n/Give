@@ -20,9 +20,16 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
+      const safeUser = {
+      uid: userDoc.id,
+      email: user.email,
+      displayName: user.displayName ?? null,
+      photoURL: user.photoURL ?? null,
+    };
+
     res.json({
       message: "Login successful",
-      user: { id: userDoc.id, email: user.email },
+      user: safeUser,
     });
   } catch (err) {
     console.error(err);

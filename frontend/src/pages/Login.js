@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({onLogin}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setError("");
@@ -23,7 +26,10 @@ const Login = () => {
 
       setSuccess(result.message || "Logged in successfully");
 
-       localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("user", JSON.stringify(result.user));
+      onLogin?.(result.user);          // <-- update App state
+      setSuccess(result.message || "Logged in successfully");
+      navigate("/"); 
 
       // navigate to home here
       // eg setTimeout(() => { navigate("/home");}, 2000);
