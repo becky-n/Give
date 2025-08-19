@@ -1,9 +1,10 @@
 import React from "react";
-import { Post, SuggestedBox, UserInfo, NavBar, ScreenTab, GroupSearch } from "../";
+import { Post, SuggestedBox, UserInfo, NavBar, ScreenTab, GroupSearch, CreatePost } from "../";
 import { useState, useMemo } from "react";
 
 function HomeScreen({ postData }) {
   const [searchQuery, setSearchQuery] = useState("");
+   const [currentTab, setCurrentTab] = useState("home"); 
   
     const handleSearchChange = (e) => {
       setSearchQuery(e.target.value);
@@ -17,11 +18,11 @@ function HomeScreen({ postData }) {
 
 
   // Hardcoded list for now; replace with fetched DB data later
-  const posts = [
-    postData, 
-    { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
-    { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
-  ];
+  // const posts = [
+  //   postData, 
+  //   { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
+  //   { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
+  // ];
 
 
   return (
@@ -42,15 +43,23 @@ function HomeScreen({ postData }) {
 
         {/* center column — remove h-screen, make it the scroller */}
         <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
-          {posts.map((p) => (
-            <Post
-              key={p.post.id}
-              user={p.user}
-              group={p.group}
-              post={p.post}
-              pollOptions={p.pollOptions}
-            />
-          ))}
+          {currentTab === "create" ? (
+              <CreatePost />
+            ) : ( postData &&
+            postData.map((p) => (
+              <Post
+                key={p.id}
+                user={{
+                  name: p.authorDisplayName,
+                  profilePic: p.authorPhotoURL,
+                  id: p.authorId,
+                }}
+                group={p.group ?? null}
+                post={p}
+                pollOptions={p.polls ?? []}
+              />
+            ))
+            )}
         </section>
 
         {/* right column */}

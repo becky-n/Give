@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function ScreenTab() {
+export default function ScreenTab({onTabChange}) {
 
   return (
     <div className="w-full rounded-xl">
@@ -14,6 +14,7 @@ export default function ScreenTab() {
                   src="/Home.png"
                   alt="home icon"
                   style={{ width: "1.5em", height: "1.5em" }}
+                  onClick={() => onTabChange("home")}
                 />
             </div>
             <div>
@@ -31,17 +32,17 @@ export default function ScreenTab() {
                 />
                 <p className="font-semibold text-base text-black">Explore Polls</p>
         </Link>
-        <Link
-            to="/create"
+        <div
             className="flex items-center p-2 rounded-xl bg-backgroundGrey gap-3 hover:bg-lightYellow"
           >
               <img
                 src="/Plus.png"
                 alt="plus icon"
                 style={{ width: "1.5em", height: "1.5em" }}
+                onClick={() => onTabChange("create")}
               />
               <p className="font-semibold text-base text-black">Create Post</p>
-        </Link>
+        </div>
       </div>
     </div>
   );

@@ -11,16 +11,21 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import CreateAccount from "./pages/CreateAccount";
 
-async function getPostData() {
-  try {
-    const res = await fetch("http://localhost:5001/postData");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error("Failed to load poll:", err);
-    return err.message;
-  }
+export async function getPostData({
+  limitCount = 10,
+  orderByField = "createdAt",
+  orderDirection = "desc",
+} = {}) {
+  const params = new URLSearchParams({
+    limitCount,
+    orderByField,
+    orderDirection,
+  });
+  const res = await fetch(`/api/posts?${params.toString()}`);
+  if (!res.ok) throw new Error((await res.json()).error || "Failed to fetch");
+  return res.json();
 }
+
 
 // Layout for "app-styled" routes
 function AppLayout({ postData }) {
@@ -33,19 +38,12 @@ function AppLayout({ postData }) {
 
 function App() {
   const [postData, setPostData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getPostData()
       .then((data) => setPostData(data))
-      .catch((error) => console.error("Error fetching post data:", error))
-      .finally(() => {
-        console.log("Post data fetch completed");
-        setLoading(false);
-      });
+      .catch((error) => console.error("Error fetching post data:", error));
   }, []);
-
-  if (loading) return <p>Loading...</p>;
 
   const router = createBrowserRouter([
     {

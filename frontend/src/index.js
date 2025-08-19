@@ -27,3 +27,4 @@ export { default as UserInfo } from './components/UserInfo';
 export { default as ScreenTab } from './components/ScreenTab';
 export { default as GroupSearch } from './components/GroupSearch';
 export { default as CreateAccount } from './pages/CreateAccount';
+export {default as CreatePost} from './components/CreatePost';

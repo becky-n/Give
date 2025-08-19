@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/index.css";
 import imageIcon from "../assets/imageIcon.svg";
-import { uploadManyAndGetUrls } from "../lib/storageUpload";
+import { uploadManyAndGetUrls } from "../lib/StorageUpload";
 
 // Create a post via backend
 export async function createPostViaApi({
