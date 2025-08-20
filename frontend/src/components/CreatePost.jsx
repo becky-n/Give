@@ -107,7 +107,6 @@ export default function ResponsiveContainer({ currentUser }) {
     try {
       setSubmitting(true);
 
-      // ⬇️ Upload directly to Firebase Storage (no /api/upload)
       const { urls } = await uploadManyAndGetUrls(files, currentUser.uid);
 
       await createPostViaApi({
@@ -135,8 +134,8 @@ export default function ResponsiveContainer({ currentUser }) {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-white p-4 rounded-lg shadow-md">
+    <div className="w-full  mx-auto px-4 py-8">
+      <div className="bg-white p-4 rounded-3xl shadow-md">
         <h2 className="text-xl font-semibold mb-2 text-black text-left ml-4 pb-5">
           Create a post
         </h2>
