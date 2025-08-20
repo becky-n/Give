@@ -44,7 +44,6 @@ export async function getPostsViaApi({
   return res.json();
 }
 
-
 export default function ResponsiveContainer({ currentUser }) {
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
@@ -52,6 +51,7 @@ export default function ResponsiveContainer({ currentUser }) {
   const [error, setError] = useState("");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pollOptions, setPollOptions] = useState([]);
 
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -72,6 +72,22 @@ export default function ResponsiveContainer({ currentUser }) {
     URL.revokeObjectURL(previews[idx]);
     setPreviews((prev) => prev.filter((_, i) => i !== idx));
     setFiles((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function handleAddOption() {
+    setPollOptions((opts) =>
+      opts.length >= 4 ? opts : [...opts, { label: "" }]
+    );
+  }
+
+  function handleOptionChange(index, value) {
+    setPollOptions((opts) =>
+      opts.map((o, i) => (i === index ? { ...o, label: value } : o))
+    );
+  }
+
+  function handleRemoveOption(index) {
+    setPollOptions((opts) => opts.filter((_, i) => i !== index));
   }
 
   useEffect(() => {
@@ -117,13 +133,21 @@ export default function ResponsiveContainer({ currentUser }) {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
+        polls: cleanPolls,
       });
+
+      const cleanPolls = pollOptions
+      .map(o => ({ label: o.label.trim() }))
+      .filter(o => o.label.length > 0)
+      .slice(0, 4);
+
 
       setText("");
       setTags("");
       setFiles([]);
       previews.forEach(URL.revokeObjectURL);
       setPreviews([]);
+      setPollOptions([]);
 
       await refreshPosts();
     } catch (err) {
@@ -260,15 +284,51 @@ export default function ResponsiveContainer({ currentUser }) {
             <h3 className="text-lg font-semibold mb-2 text-black text-left ">
               Create Polls
             </h3>
-            <div className="w-full text-left">
+            <div className="w-full text-left space-y-2">
+              {/* Render current options */}
+              {pollOptions.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={opt.label}
+                    onChange={(e) => handleOptionChange(idx, e.target.value)}
+                    placeholder={`Option ${idx + 1}`}
+                    maxLength={80}
+                    disabled={!currentUser || submitting}
+                    className="flex-1 bg-backgroundGrey text-sm text-gray-900 rounded-md px-3 py-2 focus:outline-none placeholder:text-gray-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOption(idx)}
+                    className="text-sm px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                    aria-label="Remove option"
+                    disabled={submitting}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              {/* Add-option button, disabled at 4 */}
               <button
                 type="button"
-                className="bg-backgroundGrey text-gray-500 text-lg font-semibold pb-1 pt-0.5 px-2.5 rounded-lg"
+                onClick={handleAddOption}
+                disabled={pollOptions.length >= 4 || !currentUser || submitting}
+                className="bg-backgroundGrey text-gray-700 text-lg font-semibold pb-1 pt-0.5 px-2.5 rounded-lg disabled:opacity-50"
+                title={
+                  pollOptions.length >= 4
+                    ? "Maximum 4 options"
+                    : "Add poll option"
+                }
               >
-                <p>+</p>
+                +
               </button>
-            </div>
 
+              {/* Tiny helper text */}
+              <p className="text-xs text-gray-500">
+                {pollOptions.length}/4 options
+              </p>
+            </div>
             {error && <p className="text-red-600 mt-4">{error}</p>}
 
             <div className="mt-4">

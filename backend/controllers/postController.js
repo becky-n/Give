@@ -12,7 +12,7 @@ exports.createPost = async (req, res) => {
       content: content.trim(),
       mediaUrls,
       tags,
-      polls: [],
+      polls: Array.isArray(polls) ? polls.slice(0,4).map(p => ({ label: String(p.label || "").trim() })).filter(p => p.label) : [],
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
