@@ -9,8 +9,11 @@ import {
   CreatePost,
 } from "../";
 import { useState, useMemo } from "react";
+import { useAuth } from '../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 function HomeScreen({ postData }) {
+  const { user, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTab, setCurrentTab] = useState("home");
 

@@ -1,7 +1,112 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import mapAuthError from '../utils/authErrors';
+
+// API URL (set REACT_APP_API_URL in .env or it will default to localhost:5000)
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const CreateAccount = () => {
-  return (
+    const [form, setForm] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        birthday: ''
+    });
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        // basic validation
+        if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword || !form.birthday) {
+            setError('Please fill in all the fields.');
+            return;
+        }
+        if (form.password !== form.confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+        if (form.password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+            const user = userCredential.user;
+
+            // Update profile displayName
+            await updateProfile(user, {
+                displayName: `${form.firstName} ${form.lastName}`
+            });
+
+            // Send profile to backend which uses Admin SDK to write to Firestore
+            try {
+                const token = await (user.getIdToken ? user.getIdToken() : auth.currentUser.getIdToken());
+                const res = await fetch(`${API_URL}/api/saveProfile`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        firstName: form.firstName,
+                        lastName: form.lastName,
+                        displayName: `${form.firstName} ${form.lastName}`,
+                        email: form.email,
+                        birthday: form.birthday || null,
+                    }),
+                });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    const serverMsg = body.error || `Server responded ${res.status}`;
+                    console.error('Backend saveProfile error:', serverMsg);
+                    throw new Error(serverMsg);
+                }
+            } catch (fireErr) {
+                console.error('Failed to save profile via backend:', fireErr);
+                // Attempt to rollback: delete the newly created auth user so no orphan account exists
+                try {
+                    // prefer the user object we have
+                    if (user && user.delete) {
+                        await user.delete();
+                    } else if (auth.currentUser) {
+                        await auth.currentUser.delete();
+                    }
+                    setError('Failed to save profile. Account creation was rolled back. Please try again.');
+                } catch (delErr) {
+                    console.error('Failed to delete user after profile save failure:', delErr);
+                    setError('Failed to save profile, and automatic rollback failed. Please contact support.');
+                }
+                setSubmitting(false);
+                return;
+            }
+
+            setSuccess('Account created successfully!');
+            // Navigate to home page
+            navigate('/home');
+        } catch (err) {
+            // map firebase/internal errors to friendly messages
+            setError(mapAuthError(err));
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
     <div className="min-h-screen bg-defaultPink font-[Nunito,Poppins,sans-serif]">
       {/* Header with website name */}
       <div className="absolute top-0 left-0 p-6 z-20">
@@ -27,7 +132,7 @@ const CreateAccount = () => {
                 </p>
             </div>
 
-            <form className="bg-backgroundGrey p-8 pb-0 rounded-t-3xl flex-1 flex flex-col">
+            <form className="bg-backgroundGrey p-8 pb-0 rounded-t-3xl flex-1 flex flex-col" onSubmit={handleSubmit}>
                 <p className="text-left text-lg font-bold text-gray-900">
                     Create Account
                 </p>
@@ -42,6 +147,8 @@ const CreateAccount = () => {
                                     type="text"
                                     className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                     placeholder="First name"
+                                    value={form.firstName}
+                                    onChange={handleChange}
                                 />
                             </div>
                         
@@ -52,6 +159,8 @@ const CreateAccount = () => {
                                     type="text"
                                     className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                     placeholder="Last name"
+                                    value={form.lastName}
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -65,6 +174,8 @@ const CreateAccount = () => {
                                 autoComplete="email"
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                 placeholder="Email address"
+                                value={form.email}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -77,6 +188,8 @@ const CreateAccount = () => {
                                 autoComplete="new-password"
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                 placeholder="Password"
+                                value={form.password}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -89,6 +202,8 @@ const CreateAccount = () => {
                                 autoComplete="new-password"
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                 placeholder="Confirm password"
+                                value={form.confirmPassword}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -103,6 +218,8 @@ const CreateAccount = () => {
                                 type="date"
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-transparent bg-darkGrey placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
                                 placeholder="Birthday"
+                                value={form.birthday}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
@@ -112,10 +229,13 @@ const CreateAccount = () => {
                         By Clicking Create Account, you agree to our Terms and Conditions and that you have read our Data Policy, including our Cookie Use. You may receive promotional Emails and SMS notifications and can opt out at any time.
                     </div>
 
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {success && <p className="text-green-500 text-sm">{success}</p>}
+
                     <div>
                         <button
                         type="submit"
-                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent font-extrabold rounded-md text-white bg-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition duration-150 ease-in-out"
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-base rounded-md text-white bg-defaultYellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition duration-150 ease-in-out"
                         >
                         Create Account
                         </button>
@@ -126,7 +246,8 @@ const CreateAccount = () => {
                             Already have an account?{' '}
                             <button
                                 type="button"
-                                className="font-medium text-yellow-400 hover:text-yellow-500 transition duration-150 ease-in-out"
+                                onClick={() => navigate('/')}
+                                className="font-medium text-yellow-500 hover:text-yellow-700 transition duration-150 ease-in-out"
                             >
                                 Sign in here
                             </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -10,6 +10,9 @@ import "./styles/App.css";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import CreateAccount from "./pages/CreateAccount";
+import { AuthProvider } from './contexts/AuthContext';
+import RequireAuth from './components/RequireAuth';
+import Group from "./pages/Group";
 
 export async function getPostData({
   limitCount = 10,
@@ -57,15 +60,23 @@ function App() {
     {
       element: <AppLayout postData={postData} />,
       children: [
-        {
-          path: "/home",
-          element: <Home postData={postData} />,
-        },
-      ],
+      {
+        path: "/home",
+        element: <RequireAuth><Home postData={postData} /></RequireAuth>,
+      },
+      {
+        path: "/group",
+        element: <Group postData={postData} />,
+      },
+    ],
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;
