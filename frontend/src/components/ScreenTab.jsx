@@ -50,5 +50,6 @@ export default function ScreenTab({onTabChange}) {
         )}
       </div>
     </div>
+
   );
 }

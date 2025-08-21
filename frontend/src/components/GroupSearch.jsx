@@ -2,15 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 
+const expandedGroups = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
+const searchTerm = localStorage.getItem("groupSearch") ?? "";
+
 export default function GroupSearch() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchTerm);
+  const [expanded, setExpanded] = useState(expandedGroups);
   const inputRef = useRef(null);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    setShowDropdown(true);
+    localStorage.setItem("groupSearch", e.target.value);
   };
 
   const handleSearchSubmit = (e) => {
@@ -33,19 +35,6 @@ export default function GroupSearch() {
     group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close dropdown and clear input when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (inputRef.current && !inputRef.current.contains(e.target)) {
-        setShowDropdown(false);
-        setSearchQuery("");
-        setExpanded(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   function GroupItem({ group }) {
     const { id, name, profilePic } = group;
     return (
@@ -66,7 +55,7 @@ export default function GroupSearch() {
       </li>
     );
   }
-  
+
   const displayedGroups =
     searchQuery.trim()
       ? filteredGroups
@@ -121,7 +110,10 @@ export default function GroupSearch() {
             <button
               type="button"
               className="right-2 p-2 rounded-full flex items-center justify-center "
-              onClick={() => setExpanded((prev) => !prev)}
+              onClick={() => {
+                localStorage.setItem("groupsExpanded", !expanded);
+                setExpanded((prev) => !prev);
+              }}
             >
               <p className="text-xs font-semibold text-black opacity-60 hover:opacity-100">
                 {expanded ? "Collapse" : "View All"}
