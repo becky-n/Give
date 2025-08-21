@@ -12,8 +12,9 @@ import { useState, useMemo } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
+
 function HomeScreen({ postData }) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTab, setCurrentTab] = useState("home");
 
@@ -53,7 +54,7 @@ function HomeScreen({ postData }) {
           {/* center column — remove h-screen, make it the scroller */}
           <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
             {currentTab === "create" ? (
-              <CreatePost />
+              <CreatePost/>
             ) : (
               postData &&
               postData.map((p) => (
@@ -66,7 +67,7 @@ function HomeScreen({ postData }) {
                   }}
                   group={p.group || undefined}
                   post={p}
-                  pollOptions={p.polls ?? []}
+                  // pollOptions={p.polls ?? []}
                 />
               ))
             )}

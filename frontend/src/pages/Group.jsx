@@ -53,7 +53,7 @@ const Group = ({postData}) => {
               user={postData.user}
               group={postData.group}
               post={postData.post}
-              pollOptions={post.pollOptions}
+              // pollOptions={post.pollOptions}
             />
           ))}
         </section>

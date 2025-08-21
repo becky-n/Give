@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "../styles/index.css";
 import imageIcon from "../assets/imageIcon.svg";
 import { uploadManyAndGetUrls } from "../lib/StorageUpload";
+import { useAuth } from '../contexts/AuthContext';
 
 // Create a post via backend
 export async function createPostViaApi({
@@ -9,6 +10,7 @@ export async function createPostViaApi({
   content,
   mediaUrls = [],
   tags = [],
+  // polls = [],
 }) {
   const body = {
     content,
@@ -17,6 +19,7 @@ export async function createPostViaApi({
     authorId: currentUser?.uid ?? null,
     authorDisplayName: currentUser?.displayName ?? null,
     authorPhotoURL: currentUser?.photoURL ?? null,
+    // polls,
   };
 
   const res = await fetch("/api/posts", {
@@ -44,18 +47,22 @@ export async function getPostsViaApi({
   return res.json();
 }
 
-export default function ResponsiveContainer({ currentUser }) {
+export default function ResponsiveContainer() {
+  const { user: currentUser } = useAuth();
+
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pollOptions, setPollOptions] = useState([]);
+  // const [pollOptions, setPollOptions] = useState([]);
 
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef(null);
+  
+ 
 
   function openFilePicker() {
     fileInputRef.current?.click();
@@ -74,21 +81,21 @@ export default function ResponsiveContainer({ currentUser }) {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  function handleAddOption() {
-    setPollOptions((opts) =>
-      opts.length >= 4 ? opts : [...opts, { label: "" }]
-    );
-  }
+  // function handleAddOption() {
+  //   setPollOptions((opts) =>
+  //     opts.length >= 4 ? opts : [...opts, { label: "" }]
+  //   );
+  // }
 
-  function handleOptionChange(index, value) {
-    setPollOptions((opts) =>
-      opts.map((o, i) => (i === index ? { ...o, label: value } : o))
-    );
-  }
+  // function handleOptionChange(index, value) {
+  //   setPollOptions((opts) =>
+  //     opts.map((o, i) => (i === index ? { ...o, label: value } : o))
+  //   );
+  // }
 
-  function handleRemoveOption(index) {
-    setPollOptions((opts) => opts.filter((_, i) => i !== index));
-  }
+  // function handleRemoveOption(index) {
+  //   setPollOptions((opts) => opts.filter((_, i) => i !== index));
+  // }
 
   useEffect(() => {
     return () => previews.forEach(URL.revokeObjectURL);
@@ -117,13 +124,19 @@ export default function ResponsiveContainer({ currentUser }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (!currentUser) return setError("Please sign in to post.");
+   
     if (!text.trim()) return setError("Please enter some text.");
+    if (!currentUser) return setError("Please log in before posting.");
 
     try {
       setSubmitting(true);
 
       const { urls } = await uploadManyAndGetUrls(files, currentUser.uid);
+
+      // const cleanPolls = pollOptions
+      // .map(o => ({ label: o.label.trim() }))
+      // .filter(o => o.label.length > 0)
+      // .slice(0, 4);
 
       await createPostViaApi({
         currentUser,
@@ -133,13 +146,8 @@ export default function ResponsiveContainer({ currentUser }) {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
-        polls: cleanPolls,
+        // polls: cleanPolls,
       });
-
-      const cleanPolls = pollOptions
-      .map(o => ({ label: o.label.trim() }))
-      .filter(o => o.label.length > 0)
-      .slice(0, 4);
 
 
       setText("");
@@ -147,7 +155,7 @@ export default function ResponsiveContainer({ currentUser }) {
       setFiles([]);
       previews.forEach(URL.revokeObjectURL);
       setPreviews([]);
-      setPollOptions([]);
+      // setPollOptions([]);
 
       await refreshPosts();
     } catch (err) {
@@ -200,9 +208,9 @@ export default function ResponsiveContainer({ currentUser }) {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder={
-                    currentUser ? "What's on your mind?" : "Sign in to post..."
+                   "What's on your mind?"
                   }
-                  disabled={!currentUser || submitting}
+                  disabled={submitting}
                   rows={3}
                   className=" text-sm w-full text-gray-900 focus:outline-none  bg-backgroundGrey disabled:opacity-60 "
                 />
@@ -215,7 +223,7 @@ export default function ResponsiveContainer({ currentUser }) {
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                   placeholder="Add tags (comma-separated)"
-                  disabled={!currentUser || submitting}
+                  disabled={ submitting}
                   className="w-full text-sm text-gray-900 rounded-md
                              px-3 py-2 focus:outline-none 
                              placeholder:text-gray-400"
@@ -286,7 +294,7 @@ export default function ResponsiveContainer({ currentUser }) {
             </h3>
             <div className="w-full text-left space-y-2">
               {/* Render current options */}
-              {pollOptions.map((opt, idx) => (
+              {/* {pollOptions.map((opt, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <input
                     type="text"
@@ -294,7 +302,7 @@ export default function ResponsiveContainer({ currentUser }) {
                     onChange={(e) => handleOptionChange(idx, e.target.value)}
                     placeholder={`Option ${idx + 1}`}
                     maxLength={80}
-                    disabled={!currentUser || submitting}
+                    disabled={submitting}
                     className="flex-1 bg-backgroundGrey text-sm text-gray-900 rounded-md px-3 py-2 focus:outline-none placeholder:text-gray-400"
                   />
                   <button
@@ -307,13 +315,13 @@ export default function ResponsiveContainer({ currentUser }) {
                     Remove
                   </button>
                 </div>
-              ))}
+              ))} */}
 
               {/* Add-option button, disabled at 4 */}
-              <button
+              {/* <button
                 type="button"
                 onClick={handleAddOption}
-                disabled={pollOptions.length >= 4 || !currentUser || submitting}
+                disabled={pollOptions.length >= 4  || submitting}
                 className="bg-backgroundGrey text-gray-700 text-lg font-semibold pb-1 pt-0.5 px-2.5 rounded-lg disabled:opacity-50"
                 title={
                   pollOptions.length >= 4
@@ -322,19 +330,19 @@ export default function ResponsiveContainer({ currentUser }) {
                 }
               >
                 +
-              </button>
+              </button> */}
 
               {/* Tiny helper text */}
-              <p className="text-xs text-gray-500">
+              {/* <p className="text-xs text-gray-500">
                 {pollOptions.length}/4 options
-              </p>
+              </p> */}
             </div>
             {error && <p className="text-red-600 mt-4">{error}</p>}
 
             <div className="mt-4">
               <button
                 type="submit"
-                disabled={!currentUser || submitting || !text.trim()}
+                disabled={submitting || !text.trim()}
                 className="rounded-md bg-darkGrey text-black px-16 font-semibold py-2 disabled:opacity-60"
               >
                 {submitting ? "Posting..." : "Post"}
