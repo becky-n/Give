@@ -66,7 +66,7 @@ function App() {
       },
       {
         path: "/group",
-        element: <Group postData={postData} />,
+        element: <RequireAuth><Group postData={postData} /></RequireAuth>,
       },
     ],
     },
