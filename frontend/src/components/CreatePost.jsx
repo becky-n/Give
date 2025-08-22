@@ -166,8 +166,8 @@ export default function ResponsiveContainer() {
   }
 
   return (
-    <div className="w-full  mx-auto px-4 py-8">
-      <div className="bg-white p-4 rounded-3xl shadow-md">
+    <div className="w-full  mx-auto px-4">
+      <div className="bg-backgroundGrey p-4 rounded-3xl shadow-md">
         <h2 className="text-xl font-semibold mb-2 text-black text-left ml-4 pb-5">
           Create a post
         </h2>
@@ -202,7 +202,7 @@ export default function ResponsiveContainer() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-2">
-              <div className="block w-full p-4  rounded-lg bg-backgroundGrey">
+              <div className="block w-full p-4  rounded-lg bg-darkGrey">
                 <textarea
                   id="medium-input"
                   value={text}
@@ -212,9 +212,9 @@ export default function ResponsiveContainer() {
                   }
                   disabled={submitting}
                   rows={3}
-                  className=" text-sm w-full text-gray-900 focus:outline-none  bg-backgroundGrey disabled:opacity-60 "
+                  className=" text-sm w-full text-gray-900 focus:outline-none  bg-darkGrey disabled:opacity-60 "
                 />
-                <h3 className="text-lg font-semibold mt-4 mb-2 text-black text-left">
+                <h3 className="text-md font-semibold mt-4 mb-2 text-black text-left">
                   Add Tags
                 </h3>
                 <input
@@ -238,7 +238,7 @@ export default function ResponsiveContainer() {
               Add to Your Post
             </h3>
 
-            <div className="relative mb-6 w-full min-h-56 bg-backgroundGrey px-4 py-8 rounded-lg">
+            <div className="relative mb-6 w-full min-h-56 bg-darkGrey px-4 py-8 rounded-lg">
               {/* Previews grid */}
               {previews.length > 0 && (
                 <div className="grid grid-cols-3 gap-3 pr-14">

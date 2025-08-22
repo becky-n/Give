@@ -1,5 +1,5 @@
 import React from "react";
-import { Post, GroupTab, UserInfo, NavBar, ScreenTabGroup, GroupSearch } from "../";
+import { Post, GroupTab, UserInfo, NavBar, GroupSearch } from "../";
 import { useState, useMemo } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -48,7 +48,6 @@ const Group = ({postData}) => {
         {/* left column */}
         <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0">
           <UserInfo />
-          <ScreenTabGroup />
           <div className="flex-1 overflow-y-hidden">
             <GroupTab id={id} />
           </div>
