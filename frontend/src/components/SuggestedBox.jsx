@@ -30,7 +30,7 @@ export default function SuggestedBox() {
         {/* Tags */}
         <div className="mt-5">
           <h3 className="text-sm font-semibold text-left text-black">Tags</h3>
-          <ul className="text-xs mt-2 leading-6 font-medium text-black">
+          <ul className="text-xs font-semibold mt-2 leading-6 font-medium text-black">
             {tags.map((tag, i) => (
               <li key={i} className="flex justify-between items-center cursor-pointer pl-2">
                 {tag}
@@ -47,10 +47,10 @@ export default function SuggestedBox() {
         {/* Groups */}
         <div className="mt-5">
           <h3 className="text-sm font-semibold text-left text-black">Groups</h3>
-          <ul className="text-xs mt-2 leading-6 font-medium text-black">
+          <ul className="text-xs font-semibold mt-2 leading-6 font-medium text-black">
             {groups.map((group) => (
-               <a href={`/group?id=${group.id}`}>
-                <li key={group.id} className="flex justify-between items-center cursor-pointer pl-2">
+               <a key={group.id} href={`/group?id=${group.id}`}>
+                <li className="flex justify-between items-center cursor-pointer pl-2">
                   {group.name}
                     <img
                       src="/arrow.svg"
