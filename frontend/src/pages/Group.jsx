@@ -1,5 +1,5 @@
 import React from "react";
-import { Post, GroupTab, UserInfo, NavBar, GroupSearch } from "../";
+import { Post, GroupTab, UserInfo, NavBar, GroupSearch, ScreenTabGroup,CreatePost } from "../";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -24,6 +24,7 @@ const Group = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, loading } = useAuth();
   const [postData, setPostData] = useState([]);
+  const [currentTab, setCurrentTab] = useState("home");
 
   useEffect(() => {
     getPostData()
@@ -69,6 +70,7 @@ const Group = () => {
           {/* left column */}
           <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0">
             <UserInfo />
+            <ScreenTabGroup onTabChange={setCurrentTab} onCurrentTab={currentTab}/>
             <div className="flex-1 overflow-y-hidden">
               <GroupTab id={id} />
             </div>
@@ -76,20 +78,24 @@ const Group = () => {
 
           {/* Centre column */}
           <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
-            {postData.length > 0 &&
-              postData.map((p) => (
-                <Post
-                  key={p.id}
-                  user={{
-                    id: p.authorId ?? undefined,
-                    name: p.authorDisplayName || "unknown",
-                    profilePic: p.authorPhotoURL || undefined,
-                  }}
-                  group={p.group || undefined}
-                  post={p}
-                  // pollOptions={p.polls ?? []}
-                />
-              ))}
+           {currentTab === "create" ? (
+                         <CreatePost/>
+                       ) : (
+                         postData &&
+                         postData.map((p) => (
+                           <Post
+                             key={p.id}
+                             user={{
+                               id: p.authorId ?? undefined,
+                               name: p.authorDisplayName || "unknown",
+                               profilePic: p.authorPhotoURL || undefined,
+                             }}
+                             group={p.group || undefined}
+                             post={p}
+                             // pollOptions={p.polls ?? []}
+                           />
+                         ))
+                       )}
           </section>
 
           {/* right column */}
