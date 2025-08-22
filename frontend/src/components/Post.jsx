@@ -8,7 +8,7 @@ const Post = ({user, group, post}) => {
 
   return (
     <div className="w-full rounded-3xl p-4 bg-backgroundGrey flex flex-col items-center">
-      <UserCard user={user} group={group} timeLeft={post.timeLeft} />
+      <UserCard user={user} group={group} />
       <PostData post={post} />
       {/* <PollBox initialOptions={pollOptions} /> */}
     </div>
@@ -27,7 +27,6 @@ Post.propTypes = {
   post: PropTypes.shape({
     question: PropTypes.string,
     content: PropTypes.array,
-    timeLeft: PropTypes.string,
   }).isRequired,
   // pollOptions: PropTypes.array.isRequired,
 };

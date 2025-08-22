@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-const UserCard = ({ user, group, timeLeft }) => {
+const UserCard = ({ user, group }) => {
   const name = user?.name;
   const profilePic = user?.profilePic || "/images/noPfp.jpg";
   const groupName = group?.name;
@@ -33,9 +33,6 @@ const UserCard = ({ user, group, timeLeft }) => {
             posted to <span className="font-semibold">{groupName}</span>
           </p>
         )}
-      </div>
-      <div className="flex items-start whitespace-nowrap text-xs">
-        {timeLeft && <span>{timeLeft} left</span>}
       </div>
     </div>
   );

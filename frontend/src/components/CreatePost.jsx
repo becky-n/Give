@@ -22,6 +22,7 @@ export async function createPostViaApi({
     // polls,
   };
 
+  // Send the post request
   const res = await fetch("/api/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -57,13 +58,11 @@ export default function ResponsiveContainer() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   // const [pollOptions, setPollOptions] = useState([]);
-
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef(null);
-  
- 
 
+  {/* Image Uploading functions */}
   function openFilePicker() {
     fileInputRef.current?.click();
   }
@@ -81,6 +80,7 @@ export default function ResponsiveContainer() {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
+  {/* Poll Functions */}
   // function handleAddOption() {
   //   setPollOptions((opts) =>
   //     opts.length >= 4 ? opts : [...opts, { label: "" }]
@@ -97,6 +97,7 @@ export default function ResponsiveContainer() {
   //   setPollOptions((opts) => opts.filter((_, i) => i !== index));
   // }
 
+  // Set previews for images uploads
   useEffect(() => {
     return () => previews.forEach(URL.revokeObjectURL);
   }, [previews]);
@@ -166,7 +167,7 @@ export default function ResponsiveContainer() {
   }
 
   return (
-    <div className="w-full  mx-auto px-4">
+    <div className="w-full  mx-auto ">
       <div className="bg-backgroundGrey p-4 rounded-3xl shadow-md">
         <h2 className="text-xl font-semibold mb-2 text-black text-left ml-4 pb-5">
           Create a post
@@ -239,7 +240,7 @@ export default function ResponsiveContainer() {
             </h3>
 
             <div className="relative mb-6 w-full min-h-56 bg-darkGrey px-4 py-8 rounded-lg">
-              {/* Previews grid */}
+             
               {previews.length > 0 && (
                 <div className="grid grid-cols-3 gap-3 pr-14">
                   {previews.map((src, idx) => (
