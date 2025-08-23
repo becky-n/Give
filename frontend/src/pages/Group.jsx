@@ -1,5 +1,7 @@
 import React from "react";
-import { Post, GroupTab, UserInfo, NavBar, GroupSearch, ScreenTabGroup,CreatePost } from "../";
+import { Post, GroupTab, UserInfo, NavBar, GroupSearch, CreatePost } from "../";
+import ScreenTab from "../components/ScreenTab";
+import { groupTabConfig } from "../config/tabConfig";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -71,7 +73,7 @@ const Group = () => {
           {/* left column */}
           <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0">
             <UserInfo />
-            <ScreenTabGroup onTabChange={() => {}} onCurrentTab={currentTab}/>
+            <ScreenTab tabConfig={groupTabConfig} onTabChange={() => {}} onCurrentTab={currentTab}/>
             <div className="flex-1 overflow-y-hidden">
               <GroupTab id={id} />
             </div>

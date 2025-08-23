@@ -29,4 +29,3 @@ export { default as GroupSearch } from './components/GroupSearch';
 export { default as CreateAccount } from './pages/CreateAccount';
 export { default as Group } from './pages/Group';
 export {default as CreatePost} from './components/CreatePost';
-export { default as ScreenTabGroup } from './components/ScreenTabGroup';
