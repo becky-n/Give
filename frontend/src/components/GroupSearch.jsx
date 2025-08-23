@@ -1,47 +1,72 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { useAuth } from "../contexts/AuthContext";
 import clsx from "clsx";
 
-const expandedGroups = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
-const searchTerm = localStorage.getItem("groupSearch") ?? "";
+const initialExpanded = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
+const initialSearch = localStorage.getItem("groupSearch") ?? "";
 
 export default function GroupSearch() {
-  const [searchQuery, setSearchQuery] = useState(searchTerm);
-  const [expanded, setExpanded] = useState(expandedGroups);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [expanded, setExpanded] = useState(initialExpanded);
+  const [groups, setGroups] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
   const inputRef = useRef(null);
+  const { user } = useAuth();
 
+  // Fetch groups for the current user from Firestore
+  useEffect(() => {
+    const fetchGroups = async () => {
+      setLoadingGroups(true);
+      if (user) {
+        const db = getFirestore();
+        // Query groups where 'users' array contains the current user's UID
+        const q = query(
+          collection(db, "groups"),
+          where("users", "array-contains", user.uid)
+        );
+        const groupSnap = await getDocs(q);
+        const userGroups = groupSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setGroups(userGroups);
+      } else {
+        setGroups([]);
+      }
+      setLoadingGroups(false);
+    };
+    fetchGroups();
+  }, [user]);
+
+  // Persist search query and expanded state to localStorage
+  useEffect(() => {
+    localStorage.setItem("groupSearch", searchQuery);
+  }, [searchQuery]);
+  useEffect(() => {
+    localStorage.setItem("groupsExpanded", JSON.stringify(expanded));
+  }, [expanded]);
+
+  // Filter groups in memory based on search input
+  const filteredGroups = groups.filter(group =>
+    group.name && group.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    localStorage.setItem("groupSearch", e.target.value);
   };
 
+  // Prevent form submission from reloading the page
   const handleSearchSubmit = (e) => {
     e.preventDefault();
   };
 
-  const groups = [
-    { id: 1, name: "Group 1", profilePic: "/photo1.jpg" },
-    { id: 2, name: "Group 2", profilePic: "/photo2.jpg" },
-    { id: 3, name: "Group 3", profilePic: "/photo3.jpg" },
-    { id: 4, name: "Group 4", profilePic: "/group-4-avatar.png" },
-    { id: 5, name: "Group 5", profilePic: "/group-5-avatar.png" },
-    { id: 6, name: "Group 6", profilePic: "/group-6-avatar.png" },
-    { id: 7, name: "Group 7", profilePic: "/group-7-avatar.png" },
-    { id: 8, name: "Group 8", profilePic: "/group-8-avatar.png" },
-    { id: 9, name: "Group 9", profilePic: "/group-9-avatar.png" },
-  ];
-
-  const filteredGroups = groups.filter((group) =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  // Renders a single group item in the list
   function GroupItem({ group }) {
     const { id, name, profilePic } = group;
     return (
       <li className="flex items-center rounded-xl gap-4 p-2 cursor-pointer group">
         <div className={clsx("w-10 h-10 rounded-full border-2 border-darkGrey overflow-hidden", { "bg-gray-300": !profilePic })}>
           <img
-            src={`images/${profilePic}` ?? "/images/placeholder.svg"}
+            src={profilePic ? `images/${profilePic}` : "/images/placeholder.svg"}
             alt={`${name} profile`}
             className="w-full h-full object-cover"
           />
@@ -56,20 +81,22 @@ export default function GroupSearch() {
     );
   }
 
+  // Determine which groups to display (filtered, expanded, or first 5)
   const displayedGroups =
     searchQuery.trim()
       ? filteredGroups
       : expanded
-      ? filteredGroups
+      ? groups
       : groups.slice(0, 5);
 
   return (
     <div className="w-full h-full relative">
       <div className={`bg-backgroundGrey rounded-3xl p-4 shadow-sm flex flex-col gap-4 ${expanded ? 'h-full' : ''}`}>
         <div>
-          <p className="font-semibold text-base text-black text-left">Groups</p>
+          <p className="font-semibold text-base text-black text-left">My Groups</p>
         </div>
 
+        {/* Search input */}
         <div className="flex gap-4">
           <div className="w-full max-w-[500px]" ref={inputRef}>
             <form onSubmit={handleSearchSubmit} className="w-full">
@@ -99,21 +126,24 @@ export default function GroupSearch() {
             </form>
           </div>
         </div>
+
         {/* List of Groups */}
         <div className={`flex flex-col gap-2 ${expanded ? "overflow-y-auto" : ""} with-scrollbar items-start`}>
           <ul className='flex flex-col gap-2 grow'>
-            {displayedGroups.map((group) => (
-              <GroupItem key={group.id} group={group} />
-            ))}
+            {loadingGroups ? (
+              <li className="text-gray-500 text-sm">Loading groups...</li>
+            ) : displayedGroups.length === 0 ? (
+              <li className="text-gray-500 text-sm">No groups found.</li>
+            ) : (
+              displayedGroups.map((group) => <GroupItem key={group.id} group={group} />)
+            )}
           </ul>
+          {/* Expand/collapse button for long lists */}
           {filteredGroups.length > 5 && !searchQuery.trim() && (
             <button
               type="button"
-              className="right-2 p-2 rounded-full flex items-center justify-center "
-              onClick={() => {
-                localStorage.setItem("groupsExpanded", !expanded);
-                setExpanded((prev) => !prev);
-              }}
+              className="right-2 p-2 rounded-full flex items-center justify-center"
+              onClick={() => setExpanded((prev) => !prev)}
             >
               <p className="text-xs font-semibold text-black opacity-60 hover:opacity-100">
                 {expanded ? "Collapse" : "View All"}
