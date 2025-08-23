@@ -1,61 +1,63 @@
-import React, { useState } from "react";
+
+
+import React from "react";
 import { Link } from "react-router-dom";
+import { groupTabConfig } from "../config/tabConfig";
 
-export default function ScreenTabGroup({ onTabChange, onCurrentTab }) {
-const isHome = onCurrentTab === "home";
-  const isCreate = onCurrentTab === "create";
-
-  const row = (children, onClick, active = false) => (
+export function TabRow({ icon, label, active, onClick, link }) {
+  const content = (
+    <div className="flex items-center gap-3">
+      <img src={icon} alt={label + " icon"} style={{ width: "1.5em", height: "1.5em" }} />
+      <p className="font-semibold text-base text-black">{label}</p>
+    </div>
+  );
+  const className =
+    "flex items-center p-2 rounded-xl select-none cursor-pointer " +
+    (active ? "bg-defaultYellow" : "bg-backgroundGrey hover:bg-lightYellow");
+  if (link) {
+    return (
+      <Link to={link} className={className}>
+        {content}
+      </Link>
+    );
+  }
+  return (
     <div
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
-      className={
-        "flex items-center p-2 rounded-xl gap-3 select-none cursor-pointer " +
-        (active ? "bg-defaultYellow" : "bg-backgroundGrey hover:bg-lightYellow")
-      }
+      className={className}
     >
-      {children}
+      {content}
     </div>
   );
+}
 
+export default function ScreenTabGroup({ onTabChange, onCurrentTab, tabs }) {
+  const tabConfig = tabs || groupTabConfig;
   return (
     <div className="w-full rounded-xl">
       <div className="bg-backgroundGrey rounded-3xl p-4 flex flex-col gap-1.5">
-         <div className="flex items-center p-2 rounded-xl bg-defaultYellow gap-3"
-          >
-              <img
-                src="/groups.svg"
-                alt="groups icon"
-                style={{ width: "1.5em", height: "1.5em" }}
-              />
-              <p className="font-semibold text-base text-black">View Group</p>
-        </div>
-        {/* Containers for each option */}
-        <Link
-            to="/home"
-            className="flex items-center p-2 rounded-xl bg-backgroundGrey gap-3 hover:bg-lightYellow"
-          >
-              <img
-                src="/Home.png"
-                alt="home icon"
-                style={{ width: "1.5em", height: "1.5em" }}
-              />
-              <p className="font-semibold text-base text-black">Home Feed</p>
-        </Link>
-        <Link
-          to="/explore"
-          className="flex items-center p-2 rounded-xl bg-backgroundGrey gap-3 hover:bg-lightYellow"
-        >
-          <img
-            src="/Eye.png"
-            alt="eye icon"
-            style={{ width: "1.5em", height: "1.5em" }}
-          />
-          <p className="font-semibold text-base text-black">Explore Polls</p>
-        </Link>
-        
+        {tabConfig.map((tab, idx) =>
+          tab.link ? (
+            <TabRow
+              key={tab.label}
+              icon={tab.icon}
+              label={tab.label}
+              link={tab.link}
+              active={tab.activeKey && tab.activeKey === onCurrentTab}
+            />
+          ) : (
+            <TabRow
+              key={tab.label}
+              icon={tab.icon}
+              label={tab.label}
+              active={tab.activeKey && tab.activeKey === onCurrentTab}
+              onClick={() => tab.activeKey && onTabChange(tab.activeKey)}
+            />
+          )
+        )}
       </div>
     </div>
   );
