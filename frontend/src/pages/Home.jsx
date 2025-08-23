@@ -13,7 +13,7 @@ export default function HomeScreen() {
   const { posts, loading } = usePosts();
   const [currentTab, setCurrentTab] = useState("home");
 
-  if (!user) return <Navigate to="/" replace />;
+  // if (!user) return <Navigate to="/" replace />;
 
   const showCreate = currentTab === "create";
 
