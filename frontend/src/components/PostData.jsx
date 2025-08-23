@@ -1,7 +1,7 @@
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "../styles/App.css"; // pink dots class
+import "../styles/App.css"; 
 
 const baseSettings = {
   dots: true,
@@ -16,12 +16,11 @@ const baseSettings = {
 };
 
 const PostData = ({ post }) => {
-  // Safe reads with sensible defaults
   const question = post?.question ?? "";
   const contentText = typeof post?.content === "string" ? post.content : "";
   const images = Array.isArray(post?.mediaUrls)
     ? post.mediaUrls
-    : Array.isArray(post?.content) // fallback if you ever stored images in content[]
+    : Array.isArray(post?.content) 
     ? post.content
     : [];
   const tags = Array.isArray(post?.tags) ? post.tags : [];

@@ -1,5 +1,6 @@
 const { db, admin } = require('../firebase/firebase');
 
+
 exports.createPost = async (req, res) => {
   try {
     const { content, mediaUrls = [], tags = [], authorId, authorDisplayName, authorPhotoURL } = req.body;
