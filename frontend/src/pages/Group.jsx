@@ -24,7 +24,8 @@ const Group = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, loading } = useAuth();
   const [postData, setPostData] = useState([]);
-  const [currentTab, setCurrentTab] = useState("home");
+  // Always highlight 'group' tab in group page
+  const currentTab = "group";
 
   useEffect(() => {
     getPostData()
@@ -70,7 +71,7 @@ const Group = () => {
           {/* left column */}
           <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0">
             <UserInfo />
-            <ScreenTabGroup onTabChange={setCurrentTab} onCurrentTab={currentTab}/>
+            <ScreenTabGroup onTabChange={() => {}} onCurrentTab={currentTab}/>
             <div className="flex-1 overflow-y-hidden">
               <GroupTab id={id} />
             </div>
